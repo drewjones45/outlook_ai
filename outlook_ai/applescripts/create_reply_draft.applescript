@@ -144,7 +144,7 @@ on manualReply(original, htmlBody, replyAll, myAddresses)
 	return newMsg
 end manualReply
 
-on copyRecipient(r, newMsg, kind, senderAddr, myAddresses)
+on copyRecipient(r, newMsg, recipKind, senderAddr, myAddresses)
 	tell application "Microsoft Outlook"
 		try
 			set ea to email address of r
@@ -157,7 +157,7 @@ on copyRecipient(r, newMsg, kind, senderAddr, myAddresses)
 				set rAddr to address of ea
 			end try
 			if rAddr is "" or rAddr is senderAddr or myAddresses contains rAddr then return
-			if kind is "cc" then
+			if recipKind is "cc" then
 				make new cc recipient at newMsg with properties {email address:{name:rName, address:rAddr}}
 			else
 				make new to recipient at newMsg with properties {email address:{name:rName, address:rAddr}}

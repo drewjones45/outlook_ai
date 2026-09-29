@@ -46,7 +46,7 @@ on run argv
 		if (count of acctList) is 0 then set end of outList to my makeRecord({"NOTE", "Outlook reported no mail accounts. If Outlook is in New Outlook mode, switch to Legacy Outlook (Outlook menu > Legacy Outlook)."})
 
 		repeat with pair in acctList
-			set kind to item 1 of pair
+			set acctKind to item 1 of pair
 			set acct to item 2 of pair
 			set acctName to ""
 			set acctEmail to ""
@@ -55,7 +55,7 @@ on run argv
 			try
 				set acctName to name of acct
 			end try
-			if kind is "exchange" then
+			if acctKind is "exchange" then
 				try
 					set msOnline to my boolText(is microsoft online of acct)
 				end try
@@ -68,7 +68,7 @@ on run argv
 			end try
 			set isDefault to "0"
 			if acctName is not "" and acctName is defaultName then set isDefault to "1"
-			set end of outList to my makeRecord({"ACCT", kind, my clean(acctName), my clean(acctEmail), isDefault, my clean(acctFull), msOnline})
+			set end of outList to my makeRecord({"ACCT", acctKind, my clean(acctName), my clean(acctEmail), isDefault, my clean(acctFull), msOnline})
 			try
 				repeat with f in (every mail folder of acct)
 					set fName to ""

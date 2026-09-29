@@ -114,28 +114,42 @@ It also provides three prompts: **`inbox_summary`**, **`draft_replies`** and **`
 
 ## Setup (on your Mac)
 
-You need macOS, Microsoft Outlook in **Legacy** mode, and [uv](https://docs.astral.sh/uv/) (`brew install uv`).
+You need macOS, Microsoft Outlook **open and in Legacy mode**, and [uv](https://docs.astral.sh/uv/). Run everything in Terminal.
 
 ```bash
+# 1. Install uv (manages Python for you). Open a new Terminal window afterwards.
+curl -LsSf https://astral.sh/uv/install.sh | sh        # or: brew install uv
+
+# 2. Get the code (if macOS offers to install developer tools for git, accept)
 git clone https://github.com/drewjones45/outlook_ai.git ~/outlook_ai
 cd ~/outlook_ai
 uv sync
 
-uv run outlook-ai doctor   # macOS asks "Terminal wants to control Microsoft Outlook". Click OK.
-uv run outlook-ai init     # writes ~/.config/outlook-ai/config.toml from your Outlook accounts
-open ~/.config/outlook-ai/config.toml   # set your name, nicknames, every address that is you
-uv run outlook-ai sync --days 7   # first sync; widen later with --days 30
-uv run outlook-ai triage          # sanity check: does the shortlist look right?
+# 3. Check the connection. macOS asks "Terminal wants access to control Microsoft Outlook": click OK.
+uv run outlook-ai doctor
+
+# 4. Create your config, then fill in your name, nicknames and every address that is you
+uv run outlook-ai init
+nano ~/.config/outlook-ai/config.toml   # save: Ctrl+O, Enter; exit: Ctrl+X
+
+# 5. First sync, then look at the results
+uv run outlook-ai sync --days 7
+uv run outlook-ai triage
+uv run outlook-ai calendar
 ```
 
-The first sync is the slow one, because every property read is a separate Apple Event. Start with a small `--days` and widen it. After that, syncs only fetch what's new.
+- `doctor` flags a Microsoft 365 (Exchange Online) mailbox with `[!!]`. That's the EWS warning at the top of this page, not a setup error.
+- Edit the config in `nano` or a code editor rather than TextEdit, whose "smart quotes" break the file.
+- The first sync is the slow one, because every property read is a separate Apple Event. Start with a small `--days` and widen it later (`sync --days 30`). After that, syncs only fetch what's new.
+- To test drafts before letting Claude write them: `uv run outlook-ai draft <id> --body "Test, please ignore" --open`, using an id from `triage`. Then delete the draft.
 
 ### Connect it to Claude
 
-**Claude Code** (most reliable, because it inherits Terminal's Automation permission):
+**Claude Code in Terminal** (most reliable, because it inherits Terminal's Automation permission). It needs a Pro, Max, Team or Enterprise plan. Install it with `curl -fsSL https://claude.ai/install.sh | bash` ([docs](https://code.claude.com/docs/en/setup)), then:
 
 ```bash
 claude mcp add outlook --scope user -- uv run --directory ~/outlook_ai outlook-ai serve
+claude
 ```
 
 Then ask "summarize my inbox", or run `/mcp__outlook__draft_replies`.

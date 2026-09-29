@@ -27,6 +27,16 @@ RESERVED = set(
     timeout times to transaction true try until where while whose with without result text list record date
     string number integer real item character word paragraph count length offset class""".split()
 )
+# Single-word terms from Standard Additions (StandardAdditions.sdef). Scripting-addition
+# terms are in scope everywhere, so a variable named e.g. "kind" compiles as a property
+# of whatever the script is talking to and fails at run time.
+RESERVED |= set(
+    """alias appletalk as ask beep before buttons caution critical delay desktop displaying down editors eof
+    extensions folder fonts for from has help host in informational invisibles ip kind locked message
+    modulation name no note of offset password path pitch plugins port preferences printmonitor properties
+    read replacing round rounding say scheme short showing size startup stationery stop subtitle summarize
+    to trash until up url using visible voices volume warning write yes""".split()
+)
 
 
 def _code_lines(source: str) -> list[str]:
