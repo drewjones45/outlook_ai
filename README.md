@@ -114,34 +114,52 @@ It also provides three prompts: **`inbox_summary`**, **`draft_replies`** and **`
 
 ## Setup (on your Mac)
 
-You need macOS, Microsoft Outlook **open and in Legacy mode**, and [uv](https://docs.astral.sh/uv/). Run everything in Terminal.
+You need macOS, Microsoft Outlook **open and in Legacy mode**, and [uv](https://docs.astral.sh/uv/). Run everything in Terminal, one block at a time. The blocks contain no `#` comments on purpose: macOS's default shell (zsh) doesn't treat `#` as a comment in pasted commands, so a trailing comment would be passed to the command as extra arguments.
 
-```bash
-# 1. Install uv (manages Python for you). Open a new Terminal window afterwards.
-curl -LsSf https://astral.sh/uv/install.sh | sh        # or: brew install uv
+1. **Install uv**, which also installs Python for you:
 
-# 2. Get the code (if macOS offers to install developer tools for git, accept)
-git clone https://github.com/drewjones45/outlook_ai.git ~/outlook_ai
-cd ~/outlook_ai
-uv sync
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   source "$HOME/.local/bin/env"
+   uv --version
+   ```
 
-# 3. Check the connection. macOS asks "Terminal wants access to control Microsoft Outlook": click OK.
-uv run outlook-ai doctor
+   The `source` line makes `uv` usable in the window you're in; new windows pick it up automatically. With Homebrew, `brew install uv` works too (skip the `source` line).
 
-# 4. Create your config, then fill in your name, nicknames and every address that is you
-uv run outlook-ai init
-nano ~/.config/outlook-ai/config.toml   # save: Ctrl+O, Enter; exit: Ctrl+X
+2. **Get the code.** If macOS offers to install developer tools for `git`, accept.
 
-# 5. First sync, then look at the results
-uv run outlook-ai sync --days 7
-uv run outlook-ai triage
-uv run outlook-ai calendar
-```
+   ```bash
+   git clone https://github.com/drewjones45/outlook_ai.git ~/outlook_ai
+   cd ~/outlook_ai
+   uv sync
+   ```
+
+3. **Check the connection.** macOS asks "Terminal wants access to control Microsoft Outlook". Click OK.
+
+   ```bash
+   uv run outlook-ai doctor
+   ```
+
+4. **Create your config**, then fill in your name, nicknames and every address that is you. In nano, save with Ctrl+O then Enter, and exit with Ctrl+X.
+
+   ```bash
+   uv run outlook-ai init
+   nano ~/.config/outlook-ai/config.toml
+   ```
+
+5. **First sync**, then look at the results:
+
+   ```bash
+   uv run outlook-ai sync --days 7
+   uv run outlook-ai triage
+   uv run outlook-ai calendar
+   ```
 
 - `doctor` flags a Microsoft 365 (Exchange Online) mailbox with `[!!]`. That's the EWS warning at the top of this page, not a setup error.
 - Edit the config in `nano` or a code editor rather than TextEdit, whose "smart quotes" break the file.
 - The first sync is the slow one, because every property read is a separate Apple Event. Start with a small `--days` and widen it later (`sync --days 30`). After that, syncs only fetch what's new.
 - To test drafts before letting Claude write them: `uv run outlook-ai draft <id> --body "Test, please ignore" --open`, using an id from `triage`. Then delete the draft.
+- `command not found: uv`: run `source "$HOME/.local/bin/env"` or open a new Terminal window. If `ls ~/.local/bin/uv` says there's no such file, the installer didn't run to the end: run the `curl` line again on its own and read its last lines.
 
 ### Connect it to Claude
 
@@ -254,8 +272,10 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.outlook-ai.notify.pl
 
 ## Development
 
+The tests run on any OS, against the fake Outlook in `tests/fake_outlook.py`:
+
 ```bash
-uv run pytest       # runs on any OS against the fake Outlook in tests/fake_outlook.py
+uv run pytest
 ```
 
 Layout:
